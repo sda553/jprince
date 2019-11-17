@@ -48,7 +48,7 @@ var Game={
       }
     },
     play_frame:function(){
-        Game.curRoom.process_trobs();
+        Game.curLevel.process_trobs();
         Game.curLevel.check_the_end();
       /*  Game.curRoom.tyles.forEach(function(item){
             if (item.redraw_frames_anim>0)

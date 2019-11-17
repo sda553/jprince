@@ -157,13 +157,13 @@ createGameTyle  = function(tiletype,modifier)
             GraphicProcessor.draw(Consts.chtabs.id_chtab_7_environmentwall, lv1, this.draw_xh+(arg3 === 2 || arg3 === 3),
                 lv2, this.draw_bottom_y-lpos[arg3],cxt);
         },
-
+        tbl_line: [0,10,20],
         wall_pattern: function(which_part,which_table)
         {
             let bg_modifier =this.getModifier() & 0x7f;
-            const tbl_line = [0,10,20];
+            //const tbl_line = [0,10,20];
             let cxt =  which_table===0 ? Game.backcxt : Game.frontcxt;
-            let random_seed = this.room.id + tbl_line[this.row] + this.column;
+            let random_seed = this.room.id + this.tbl_line[this.row] + this.column;
             let prandom = newprandom(random_seed);
             prandom.random(1);
             let v3 = prandom.random(1);
@@ -240,6 +240,54 @@ createGameTyle  = function(tiletype,modifier)
                     }
                     break;
             }
+        },
+        trigger_button: function(playsound, buttontype, modifier){            
+            if (buttontype ==0){
+                buttontype = this.getTyleType();
+            }
+            if (modifier==-1){
+                modifier = this.getModifier();
+            }
+            let link_timer = this.room.get_doorlink_timer(modifier);
+            let tilepos = this.tbl_line[this.row] + this.column;
+            if (link_timer!=0x1f)
+            {
+                this.room.set_doorlink_timer(modifier,5);
+                if (link_timer<2){
+                    this.room.level.add_trob(this.room,tilepos,1);
+                }
+                this.room.do_trigger_list(modifier,buttontype);
+            }
+        },
+        trigger_1:function(buttontype){
+            let result = -1;
+            if (this.getTyleType() == Consts.tyles.tiles_4_gate) {
+                result = this.trigger_gate(buttontype);
+            } else if (this.getTyleType() == Consts.tyles.tiles_16_level_door_left) {
+                if (this.getModifier() != 0) {
+                    result = -1;
+                } else {
+                    result = 1;
+                }
+            } 
+            return result;        
+        },
+        trigger_gate: function(buttontype){
+            if (buttontype == Consts.tyles.tiles_15_opener) {
+                return -1;
+            }
+            else if (buttontype == Consts.tyles.tiles_14_debris){
+                return -1;
+            }
+            else{
+                if (this.getModifier() != 0) {
+                    return 3; // close fast
+                } else {
+                    // already closed
+                    return -1;
+                }        
+            }
+
         },
         get_loose_frame: function(modifier)
         {
@@ -319,8 +367,13 @@ createGameTyle  = function(tiletype,modifier)
         },
         draw_tile_anim_right: function()
         {
-            let tile_left = this.left().getTyleType();
+            let tile_left = null;
+            if (this.left()) 
+                tile_left = this.left().getTyleType();
             switch (tile_left) {
+                case Consts.tyles.tiles_4_gate:
+                    this.draw_gate_back();
+                    break;
                 case  Consts.tyles.tiles_19_torch:
                 case  Consts.tyles.tiles_30_torch_with_debris:
                     let modifier_left = this.left().getModifier();
@@ -332,12 +385,14 @@ createGameTyle  = function(tiletype,modifier)
                     break;
             }
         },
-        animate_tyle: function()
+        animate_tyle: function(trob)
         {
             switch (this.getTyleType()) {
                 case  Consts.tyles.tiles_19_torch:
                 case  Consts.tyles.tiles_30_torch_with_debris:
                     return this.animate_torch();
+                case  Consts.tyles.tiles_4_gate:
+                    return this.animate_door(trob);   
                 default: return -1;
             }
         },
@@ -358,14 +413,74 @@ createGameTyle  = function(tiletype,modifier)
                 modif = (modif+1)%9;
             return modif;
         },
+        animate_door: function(trob)
+        {
+          let anim_type=trob.type;
+          const gate_close_speeds=[0, 0, 0, 20, 40, 60, 80, 100, 120];
+          if (anim_type>=0){
+            if (anim_type>=3){
+                if (anim_type<8){
+                    ++anim_type;
+                    trob.type = anim_type;
+                }
+                let new_mod = this.getModifier()-gate_close_speeds[anim_type];
+                this.modifier = new_mod;
+                if (this.modifier<0)
+                {
+                    this.modifier=0;
+                    return -1;
+                }
+            }
+          }
+          this.right().redraw_frames_anim=1;
+          return trob.type;
+        },
+        draw_gate_back: function() {
+            let gate_pos = this.calc_gate_pos();
+            const door_fram_slice = [67, 59, 58, 57, 56, 55, 54, 53, 52];
+            let curCtx = Game.backcxtanim;
+            if (gate_pos.gate_bottom_y+12<this.draw_main_y)
+            {
+                GraphicProcessor.drawbackanim(Consts.chtabs.id_chtab_6_environment, 50, this.draw_xh,
+                    0, gate_pos.gate_bottom_y);
+            }
+            else {
+                GraphicProcessor.drawback(Consts.chtabs.id_chtab_6_environment, Consts.tiletable[Consts.tyles.tiles_4_gate].right_id, this.draw_xh,
+                    0, Consts.tiletable[Consts.tyles.tiles_4_gate].right_y+this.draw_main_y);
+                GraphicProcessor.drawback(Consts.chtabs.id_chtab_6_environment, 51, this.draw_xh,
+                        0, gate_pos.gate_bottom_y-2);  
+                curCtx = Game.backcxt;
+
+            }
+            let ybottom = gate_pos.gate_bottom_y-12;
+            if (ybottom<192){
+                for (;ybottom>7 && (ybottom-7)>gate_pos.gate_top_y;ybottom-=8){
+                    GraphicProcessor.draw(Consts.chtabs.id_chtab_6_environment, 52, this.draw_xh,
+                        0, ybottom,curCtx);    
+                }
+            }
+            let var_2=ybottom-gate_pos.gate_top_y+1;
+            if (var_2>0 && var_2<9){
+                GraphicProcessor.draw(Consts.chtabs.id_chtab_6_environment, door_fram_slice[var_2], this.draw_xh,
+                    0, ybottom,curCtx);    
+            }
+        },
+        calc_gate_pos: function(){
+            res = {
+                gate_top_y: this.draw_bottom_y-62,
+                gate_openess: (this.MIN(this.left().getModifier(),188)>>2)+1,             
+            }
+            res.gate_bottom_y =this.draw_main_y-res.gate_openess;
+            return res;
+        },
+        MIN: function(a,b)
+        {
+            return a>b?b:a;
+        },
         draw_tile_fore: function()
         {
             const id_chtab_6_environment = Consts.chtabs.id_chtab_6_environment;
             const id_chtab_7_environmentwall = Consts.chtabs.id_chtab_7_environmentwall;
-            let MIN = function(a,b)
-            {
-                return a>b?b:a;
-            };
             const spikes_fram_fore = [0, 139, 140, 141, 142, 143, 142, 140, 139, 0];
             const chomper_fram_for = [106, 107, 108, 109, 110, 0];
             const wall_fram_main = [8, 10, 6, 4];
@@ -375,7 +490,7 @@ createGameTyle  = function(tiletype,modifier)
                     GraphicProcessor.drawfore(id_chtab_6_environment, spikes_fram_fore[this.get_spike_frame(this.getModifier())], this.draw_xh, 0, this.draw_main_y - 2);
                     break;
                 case Consts.tyles.tiles_18_chomper:
-                    let var_2 = chomper_fram1[MIN(this.getModifier() & 0x7F, 6)];
+                    let var_2 = chomper_fram1[this.MIN(this.getModifier() & 0x7F, 6)];
                     GraphicProcessor.drawfore(id_chtab_6_environment, chomper_fram_for[var_2], this.draw_xh, 0, this.draw_main_y);
                     if ((this.getModifier() & 0x80)!==0) {
                         GraphicProcessor.drawfore(id_chtab_6_environment, var_2 + 119, this.draw_xh + 1, 4, this.draw_main_y - 6);

@@ -1,8 +1,7 @@
 createGameRoom = function(id, level) {
     let res =
         {
-            tyles:[],
-            trobs:[],
+            tyles:[],            
             id:id,
             level:level,
             room_links:null,
@@ -193,35 +192,16 @@ createGameRoom = function(id, level) {
             {
                 console.log("Start anim torch");
                 this.getRoomTyleFromPos(tylepos).modifier =Game.getLocalPrandom(8);
-                this.add_trob(this.id,tylepos,1);
+                this.level.add_trob(this,tylepos,1);
             },
-            find_trob:function(new_trob){
-                for(let i=0;i<this.trobs.length;i++)
-                    if (this.trobs[i].room_id === new_trob.room_id && this.trobs[i].tylepos === new_trob.tylepos)
-                        return i;
-                return -1;
+            get_doorlink_timer: function(index){
+                return this.level.get_doorlink_timer(index);
             },
-            add_trob:function(room,tylepos,type){
-                new_trob = {
-                    room_id:room.id,
-                    tylepos:tylepos,
-                    type:type,
-                };
-                let i = this.find_trob(new_trob);
-                if (i===-1)
-                    this.trobs.push(new_trob);
-                else
-                    this.trobs[i].type = type;
-
-            },
-            process_trobs: function(){
-                for (let i=this.trobs.length-1;i>=0;i--)
-                {
-                    console.log("Processing trob "+i);
-                    this.trobs[i].type = this.getRoomTyleFromPos(this.trobs[i].tylepos).animate_tyle();
-                    if (this.trobs[i].type===-1)
-                        this.trobs.splice(i,1);
-                }
+            set_doorlink_timer: function(index, value){
+                return this.level.set_doorlink_timer(index,value);
+            },    
+            do_trigger_list:function(index,buttontype){
+                this.level.do_trigger_list(index,buttontype);
             },
             load_alter_mod: function()
             {
@@ -230,6 +210,13 @@ createGameRoom = function(id, level) {
                     for (let tilep = 0; tilep<30; tilep++)
                     {
                         let tileType = this.getRoomTyleFromPos(tilep).getTyleType();
+                        if (tileType===Consts.tyles.tiles_4_gate){
+                            if (this.getRoomTyleFromPos(tilep).modifier == 1) {
+                                this.getRoomTyleFromPos(tilep).modifier = 188;
+                            } else {
+                                this.getRoomTyleFromPos(tilep).modifier = 0;
+                            }           
+                        }
                         if (tileType===Consts.tyles.tiles_20_wall)
                         {
                             let mod = this.getRoomTyleFromPos(tilep).modifier;
