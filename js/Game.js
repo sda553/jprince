@@ -23,10 +23,13 @@ var Game={
         Game.startAnimation();
     },
     startAnimation:function(){
-        console.log("startin animation");
+       // console.log("startin animation");
       if (Game._timer===-1) Game._timer=setInterval(Game.animation.loop,Game._frameInterval);
     },
     start:function(){
+      //this.backcxt.imageSmoothingEnabled = false;
+      //this.frontcxt.imageSmoothingEnabled = false;
+      //this.midcxt.imageSmoothingEnabled = false;
       Game.play();
     },
     stop:function(){

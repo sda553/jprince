@@ -400,7 +400,7 @@ createGameTyle  = function(tiletype,modifier)
         {
           if (Game.curRoom.id===this.room.id)
           {
-              console.log("Setting redraw_frames_anim");
+              //console.log("Setting redraw_frames_anim");
               this.modifier = this.get_torch_frame(this.modifier);
               this.right().redraw_frames_anim=1;
           }
@@ -538,7 +538,7 @@ createGameTyle  = function(tiletype,modifier)
         redraw_needed: function()
         {
             if (this.redraw_frames_anim>0) {
-                console.log("Need to redraw tyle ...");
+                //console.log("Need to redraw tyle ...");
                 --this.redraw_frames_anim;
                 // draw_tile_anim_topright();
                 this.draw_tile_anim_right();

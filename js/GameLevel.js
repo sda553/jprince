@@ -6,16 +6,34 @@ createGameLevel = function(index){
         rooms:[],
         trobs:[],
         start_room:null,
+        kid:null,
         do_startpos: function()
         {
             this.start_room = this.getGameRoom(Levels[this.level_number].start_room);
             this.next_room = this.start_room;
+            this.kid = createChar();
+            this.kid.room = this.next_room;
+            this.kid.curr_col = (this.getStartPos() % 10);
+            this.kid.curr_row = (this.getStartPos() / 10);
+            this.kid.x = Consts.x_bump[this.kid.curr_col+5]+14;
+            this.kid.direction = ~this.getStartDir();
             if (this.level_number==1)
             {
                 let triggerRoom = this.getGameRoom(5);
                 let triggertyle = triggerRoom.get_tile_to_draw(2,0);
                 triggertyle.trigger_button(0,0,-1);
+                this.kid.seqtbl_offset_char(seqTbl.seq_7_fall);
             }
+            this.setStartPos();
+        },
+        setStartPos: function(){
+            this.kid.y=Consts.y_land[this.kid.curr_row+1];
+            this.kid.alive = -1;
+            this.kid.charid = Consts.charids.char_id_0_kid;
+            this.kid.fall_y = 0;
+            this.kid.fall_x = 0;
+            this.kid.sword = Consts.sword_status.sword_0_sheathed;
+            this.kid.play_seq();
         },
         getGameRoom: function(id)
         {
@@ -28,11 +46,17 @@ createGameLevel = function(index){
         {
             if (this.next_room!=null && this.next_room.id!==this.drawn_room.id)
             {
-                console.log("Checking the end");
+                //console.log("Checking the end");
                 this.drawn_room = this.next_room;
                 Game.curRoom =this.drawn_room;
                 this.drawn_room.anim_tile_modif();
             }
+        },
+        getStartPos: function(){
+            return Levels[this.level_number].start_pos;
+        },
+        getStartDir: function(){
+            return Levels[this.level_number].start_dir;
         },
         fg:function(index)
         {
@@ -128,7 +152,7 @@ createGameLevel = function(index){
         process_trobs: function(){
             for (let i=this.trobs.length-1;i>=0;i--)
             {
-                console.log("Processing trob "+i);
+                //console.log("Processing trob "+i);
                 let room = this.getGameRoom(this.trobs[i].room_id);
                 this.trobs[i].type = room.getRoomTyleFromPos(this.trobs[i].tylepos).animate_tyle(this.trobs[i]);
                 if (this.trobs[i].type===-1)

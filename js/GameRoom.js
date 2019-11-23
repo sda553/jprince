@@ -164,7 +164,7 @@ createGameRoom = function(id, level) {
             },
             draw_moving: function()
             {
-                console.log("redrawing needed tyles");
+                //console.log("redrawing needed tyles");
                 Game.backcxtanim.clearRect(0,0,Game.HBOUND,Game.VBOUND);
                 this.redraw_needed_tiles();
             },
@@ -190,7 +190,7 @@ createGameRoom = function(id, level) {
             },
             start_anim_torch:function(tylepos)
             {
-                console.log("Start anim torch");
+               // console.log("Start anim torch");
                 this.getRoomTyleFromPos(tylepos).modifier =Game.getLocalPrandom(8);
                 this.level.add_trob(this,tylepos,1);
             },

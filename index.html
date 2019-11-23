@@ -12,8 +12,9 @@
 			<canvas id='midframe' width="320" height="240"></canvas>
 			<canvas id='midframeanim' width="320" height="240"></canvas>
 			<canvas id='frontframe' width="320" height="240"></canvas>
-			<canvas id='frontframeanim' width="320" height="240"></canvas>
+			<canvas id='frontframeanim' width="320" height="240"></canvas>		
 		</div>
+		<script src="js/SeqTbl.js"></script>
 		<script src="js/Consts.js"></script>
 		<script src="js/Prandom.js"></script>
 		<script src="js/SourceLoader.js"></script>
@@ -22,17 +23,20 @@
 		<script src="js/GraphicProcessor.js"></script>
 		<script src="js/GameTyle.js"></script>
 		<script src="js/GameRoom.js"></script>
+		<script src="js/Char.js"></script>
 		<script src="js/GameLevel.js"></script>
 
 
 		<script type='text/javascript'>
+			
             Game.init();
             /*	var mainframe = document.getElementById("mainframe");
                 ctx = mainframe.getContext('2d');
                 mainframe.width = 320;
                 mainframe.height = 240;
                 MainLoopConstructor.init(1);
-                GameMainController.curLevel.play_level();*/
+				GameMainController.curLevel.play_level();*/
+				//seqTbl.getChars();
 		</script>
 	</body>
 </html>

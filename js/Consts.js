@@ -1,6 +1,22 @@
 Consts =
-    {
+    {        
+        x_bump: [-12, 2, 16, 30, 44, 58, 72, 86, 100, 114, 128, 142, 156, 170, 184, 198, 212, 226, 240, 254],
         dir_0_right:0,
+        y_land:[-8, 55, 118, 181, 244],
+        charids: {
+            charid_0_kid      : 0,
+            charid_1_shadow   : 1,
+            charid_2_guard    : 2,
+            charid_3          : 3,
+            charid_4_skeleton : 4,
+            charid_5_princess : 5,
+            charid_6_vizier   : 6,
+            charid_24_mouse   : 0x18,
+        },        
+        sword_status: {
+            sword_0_sheathed : 0,
+            sword_2_drawn : 2
+        },        
         tyles:
             {
                 tiles_0_empty: 0,

@@ -1,0 +1,176 @@
+CreateSeqTbl = function(){
+    res = {
+        seq_1_start_run : 1,
+        seq_2_stand : 2,
+        seq_3_standing_jump : 3,
+        seq_4_run_jump : 4,
+        seq_5_turn : 5,
+        seq_6_run_turn : 6,
+        seq_7_fall : 7,
+        seq_8_jump_up_and_grab_straight : 8,
+        seq_10_climb_up : 10,
+        seq_11_release_ledge_and_land : 11,
+        seq_13_stop_run : 13,
+        seq_14_jump_up_into_ceiling : 14,
+        seq_15_grab_ledge_midair : 15,
+        seq_16_jump_up_and_grab : 16,
+        seq_17_soft_land : 17,
+        seq_18_fall_after_standing_jump : 18,
+        seq_19_fall : 19,
+        seq_20_medium_land : 20,
+        seq_21_fall_after_running_jump : 21,
+        seq_22_crushed : 22,
+        seq_23_release_ledge_and_fall : 23,
+        seq_24_jump_up_and_grab_forward : 24,
+        seq_25_hang_against_wall : 25,
+        seq_26_crouch_while_running : 26,
+        seq_28_jump_up_with_nothing_above : 28,
+        seq_29_safe_step_1 : 29,
+        seq_30_safe_step_2 : 30,
+        seq_31_safe_step_3 : 31,
+        seq_32_safe_step_4 : 32,
+        seq_33_safe_step_5 : 33,
+        seq_34_safe_step_6 : 34,
+        seq_35_safe_step_7 : 35,
+        seq_36_safe_step_8 : 36,
+        seq_37_safe_step_9 : 37,
+        seq_38_safe_step_10 : 38,
+        seq_39_safe_step_11 : 39,
+        seq_40_safe_step_12 : 40,
+        seq_41_safe_step_13 : 41,
+        seq_42_safe_step_14 : 42,
+        seq_43_start_run_after_turn : 43,
+        seq_44_step_on_edge : 44,
+        seq_45_bumpfall : 45,
+        seq_46_hardbump : 46,
+        seq_47_bump : 47,
+        seq_49_stand_up_from_crouch : 49,
+        seq_50_crouch : 50,
+        seq_51_spiked : 51,
+        seq_52_loose_floor_fell_on_kid : 52,
+        seq_54_chomped : 54,
+        seq_55_draw_sword : 55,
+        seq_56_guard_forward_with_sword : 56,
+        seq_57_back_with_sword : 57,
+        seq_58_guard_strike : 58,
+        seq_60_turn_with_sword : 60,
+        seq_61_parry_after_strike : 61,
+        seq_62_parry : 62,
+        seq_63_guard_stand_active : 63,
+        seq_64_pushed_back_with_sword : 64,
+        seq_65_bump_forward_with_sword : 65,
+        seq_66_strike_after_parry : 66,
+        seq_68_climb_down : 68,
+        seq_69_attack_was_parried : 69,
+        seq_70_go_up_on_level_door : 70,
+        seq_71_dying : 71,
+        seq_73_climb_up_to_closed_gate : 73,
+        seq_74_hit_by_sword : 74,
+        seq_75_strike : 75,
+        seq_77_guard_stand_inactive : 77,
+        seq_78_drink : 78,
+        seq_79_crouch_hop : 79,
+        seq_80_stand_flipped : 80,
+        seq_81_kid_pushed_off_ledge : 81,
+        seq_82_guard_pushed_off_ledge : 82,
+        seq_83_guard_fall : 83,
+        seq_84_run : 84,
+        seq_85_stabbed_to_death : 85,
+        seq_86_forward_with_sword : 86,
+        seq_87_guard_become_inactive : 87,
+        seq_88_skel_wake_up : 88,
+        seq_89_turn_draw_sword : 89,
+        seq_90_en_garde : 90,
+        seq_91_get_sword : 91,
+        seq_92_put_sword_away : 92,
+        seq_93_put_sword_away_fast : 93,
+        seq_94_princess_stand_PV1 : 94,
+        seq_95_Jaffar_stand_PV1 : 95,
+        seq_101_mouse_stands_up : 101,
+        seq_103_princess_lying_PV2 : 103,
+        seq_104_start_fall_in_front_of_wall : 104,
+        seq_105_mouse_forward : 105,
+        seq_106_mouse : 106,
+        seq_107_mouse_stand_up_and_go : 107,
+        seq_108_princess_turn_and_hug : 108,
+        seq_109_princess_stand_PV2 : 109,
+        seq_110_princess_crouching_PV2 : 110,
+        seq_111_princess_stand_up_PV2 : 111,
+        seq_112_princess_crouch_down_PV2 : 112,
+        seq_114_mouse_stand : 114,   
+        SEQ_DX : 0xFB,
+        SEQ_DY : 0xFA,
+        SEQ_FLIP : 0xFE,
+        SEQ_JMP_IF_FEATHER : 0xF7,
+        SEQ_JMP : 0xFF,
+        SEQ_UP : 0xFD,
+        SEQ_DOWN : 0xFC,
+        SEQ_ACTION : 0xF9,
+        SEQ_SET_FALL : 0xF8,
+        SEQ_KNOCK_UP : 0xF5,
+        SEQ_KNOCK_DOWN : 0xF4,
+        SEQ_SOUND : 0xF2,
+        SEQ_END_LEVEL : 0xF1,
+        SEQ_GET_ITEM : 0xF3,
+        SEQ_DIE : 0xF6,		
+    };
+    let seqtbl_offsets_encoded = 'AABzGaAZkxrNGjkbWhvbG1QcoRwEHSUdSR1PHWgd9h2EHCsgHBwBHFogOBycIDYdaRzRHAQbGht9HZ4fkh+CH3IfXR9IHzMfGR8TH/ce2h67HpwefR5TG1keBh47Hvwdmx2zH6cfviDRINQgySDEGRMaLho8GnwagxpjGl4aaBpuGnUaWhr5GewcVBrdIK4geB7cHNwZQhoHGqgZCSAbG4sahRuhG78bbhmpICIaphmsGS0bwRnKH9of+x+VITIhTyFmIZkhqCFtIW4iNiG8IfobRSJTIlsixCHAIeYh6iH8IUAiVyI=';
+    let strres=[];
+    let binary=window.atob(seqtbl_offsets_encoded);
+    for (let i=0;i<binary.length;i+=2)
+    {
+        let low = binary.charCodeAt(i);
+        let high = binary.charCodeAt(i+1)<<8;
+        strres.push(high | low);
+    }
+    res.seqtbl_offsets = strres;
+    /*const seqtbl_offsets_names = [
+        'zero','startrun','stand','standjump',
+         'runjump','turn','runturn','stepfall',
+         'jumphangMed','hang','climbup','hangdrop',
+         'freefall','runstop','jumpup','fallhang',
+         'jumpbackhang','softland','jumpfall','stepfall2',
+         'medland','rjumpfall','hardland','hangfall',
+         'jumphangLong','hangstraight','rdiveroll','sdiveroll',
+         'highjump','step1','step2','step3',
+         'step4','step5','step6','step7',
+         'step8','step9','step10','step11',
+         'step12','step13','step14','turnrun',
+         'testfoot','bumpfall','hardbump','bump',
+         'superhijump','standup','stoop','impale',
+         'crush','deadfall','halve','engarde',
+         'advance','retreat','strike','flee',
+         'turnengarde','striketoblock','readyblock','landengarde',
+         'bumpengfwd','bumpengback','blocktostrike','strikeadv',
+         'climbdown','blockedstrike','climbstairs','dropdead',
+         'stepback','climbfail','stabbed','faststrike',
+         'strikeret','alertstand','drinkpotion','crawl',
+         'alertturn','fightfall','efightfall','efightfallfwd',
+         'running','stabkill','fastadvance','goalertstand',
+         'arise','turndraw','guardengarde','pickupsword',
+         'resheathe','fastsheathe','Pstand','Vstand',
+         'Vwalk','Vstop','Palert','Pstepback',
+         'Vexit','Mclimb','Vraise','Plie',
+         'patchfall','Mscurry','Mstop','Mleave',
+         'Pembrace','Pwaiting','Pstroke','Prise',
+         'Pcrouch','Pslump','Mraise',
+     ];	
+    for (let i=0;i<seqtbl_offsets_names.length;i++)
+    {
+        res[seqtbl_offsets_names[i]] = i;
+    }            */
+    let seqtbl_encoded='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';
+
+    strres=[];
+    binary=window.atob(seqtbl_encoded);
+    for (let i=0;i<binary.length;i++)
+    {
+        strres.push(binary.charCodeAt(i));
+    }
+    res.table_private = strres;
+    res.table = function(index){
+        return this.table_private[index-0x196e];
+    };
+    return res;
+};
+const seqTbl = CreateSeqTbl();
