@@ -9,6 +9,7 @@ createGameTyle  = function(tiletype,modifier)
         draw_xh:0,
         draw_bottom_y:0,
         redraw_frames_anim: 0,
+        curr_objs:[],
         getModifier:function()
         {
             if (this.room!=null && !this.room.modaltered)
@@ -379,6 +380,7 @@ createGameTyle  = function(tiletype,modifier)
                     let modifier_left = this.left().getModifier();
                     if (modifier_left < 9) {
                         // images 1..9 are the flames
+                        //console.log("drawing torch");
                         GraphicProcessor.drawbackanim(Consts.chtabs.id_chtab_1_flameswordpotion, modifier_left+1, this.draw_xh+1,
                             0, this.draw_main_y-40);
                     }
@@ -525,6 +527,9 @@ createGameTyle  = function(tiletype,modifier)
                     break;
             }
         },
+        clearObjs: function(){          
+            this.curr_objs.splice(0,this.curr_objs.length)
+        },
         draw_tile: function()
         {
             this.draw_tile_floorright();
@@ -543,6 +548,17 @@ createGameTyle  = function(tiletype,modifier)
                 // draw_tile_anim_topright();
                 this.draw_tile_anim_right();
                 //draw_tile_anim();
+            }
+        },
+        draw_objtable_items_at_tile: function()
+        {
+            if (this.curr_objs.length>0)
+            {
+                //to do sorting
+                this.curr_objs.forEach(function(element){
+                    element.draw_objtable_item();
+                });
+
             }
         },
 

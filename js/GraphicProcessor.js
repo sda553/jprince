@@ -20,21 +20,18 @@ var GraphicProcessor = {
         let addresser = GraphicProcessor.getContextAddresser(cxt);
         //console.log(Date.now()+"drawing "+addresser.logstr+":"+chtab_id+","+id+","+xh+","+xl+","+ybottom);
         curindex = GraphicProcessor.drawqueue[addresser.index].queue.length;
-        GraphicProcessor.drawqueue[addresser.index].queue.push({callbackparams:{img:null,chtab_id:chtab_id,id:id,xh:xh,xl:xl,ybottom:ybottom},ready:false});
-        sourceLoader.sources(chtab_id,id, function(cur_img){
+        GraphicProcessor.drawqueue[addresser.index].queue.push({callbackparams:{img:null,chtab_id:chtab_id,id:id,xh:xh,xl:xl,ybottom:ybottom},ready:false});        
+        sourceLoader.sourcesPromice(chtab_id,id).then(function(cur_img){
             GraphicProcessor.drawqueue[addresser.index].queue[curindex].ready=true;
-            if (cur_img.result)
-            {
-                GraphicProcessor.drawqueue[addresser.index].queue[curindex].callbackparams.img=cur_img.img;
-            }
-            else
-            {
-                GraphicProcessor.drawqueue[addresser.index].queue[curindex].callbackparams.img=null;
-            }
+            GraphicProcessor.drawqueue[addresser.index].queue[curindex].callbackparams.img=cur_img.img;
             GraphicProcessor.start_processing_draw_queue();
-            //console.log(Date.now()+"Loaded:"+chtab_id+","+id+","+xh+","+xl+","+ybottom);
+        },function(){
+            GraphicProcessor.drawqueue[addresser.index].queue[curindex].ready=true;
+            GraphicProcessor.drawqueue[addresser.index].queue[curindex].callbackparams.img=null;
+            GraphicProcessor.start_processing_draw_queue();
         });
     },
+    
     getContextFromIndex: function(index)
     {
         switch(index)
@@ -134,16 +131,16 @@ var GraphicProcessor = {
     },
     calc_screen_x_coord:
         function(logical_x) {
-            return logical_x*320/280;
+            return Math.floor(logical_x*320/280);
         },
     chtab_flip_clip : [1,0,1,1,1,1,0,0,0,0],
     drawmid: function(chtab_id,id,xh,xl,ybottom,cxt,obj)
     {
         if (cxt==null)
             cxt=Game.midcxt;
-        sourceLoader.sources(chtab_id,id,function(imgSrc){
+        sourceLoader.sourcesPromice(chtab_id,id).then(function(imgSrc){
             let xpos = xh * 8 +xl;
-            let ypos = ybottom - imgSrc.height;
+            let ypos = ybottom - imgSrc.img.height;
             if (GraphicProcessor.chtab_flip_clip[chtab_id]) {
                 if (chtab_id !== Consts.chtabs.id_chtab_0_sword) {
                     xpos = GraphicProcessor.calc_screen_x_coord(xpos);
@@ -151,12 +148,15 @@ var GraphicProcessor = {
             }
             if (obj.direction===Consts.dir_0_right && GraphicProcessor.chtab_flip_clip[chtab_id]!==0)
             {
-                xpos -= imageData.width;
+                //xpos -= imgSrc.img.width;
                 xpos=-xpos;
                 cxt.scale(-1,1);
+                cxt.drawImage(imgSrc.img,xpos,ypos,imgSrc.img.width,imgSrc.img.height);
+                cxt.scale(-1,1);
             }
-            cxt.drawImage(imgSrc,xpos,ypos,imgSrc.width,imgSrc.height);
-            cxt.scale(1,1);
+            else
+                cxt.drawImage(imgSrc.img,xpos,ypos,imgSrc.img.width,imgSrc.img.height);
+            //cxt.scale(1,1);
         });
     }
 }

@@ -162,14 +162,28 @@ createGameRoom = function(id, level) {
                     }
                 }
             },
-            draw_moving: function()
-            {
-                //console.log("redrawing needed tyles");
-                Game.backcxtanim.clearRect(0,0,Game.HBOUND,Game.VBOUND);
-                this.redraw_needed_tiles();
+            draw_moving:function(){
+                return (function(context){
+                   return new Promise(function(resolve){
+                    Game.backcxtanim.clearRect(0,0,Game.HBOUND,Game.VBOUND);
+                    context.draw_people()
+                    .then(function(){
+                        context.redraw_needed_tiles();
+                        resolve();
+                    });
+                   }); 
+                })(this);
+            },
+            draw_people:function(){
+                return (function(context){
+                   return new Promise(function(resolve){
+                    context.level.draw_kid().then(resolve);   
+                   }); 
+                })(this);
             },
             redraw_needed_tiles: function()
             {
+                this.get_tile_to_draw(-1,0).draw_objtable_items_at_tile();
                 for (let drawn_row=3;drawn_row--;)
                 {
                     for (let drawn_col = 0; drawn_col < 10; drawn_col++) {

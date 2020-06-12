@@ -11,7 +11,7 @@ createGameLevel = function(index){
         {
             this.start_room = this.getGameRoom(Levels[this.level_number].start_room);
             this.next_room = this.start_room;
-            this.kid = createChar();
+            this.kid = createChar(0);
             this.kid.room = this.next_room;
             this.kid.curr_col = (this.getStartPos() % 10);
             this.kid.curr_row = (this.getStartPos() / 10);
@@ -70,10 +70,35 @@ createGameLevel = function(index){
         {
             this.drawn_room.draw_room();
         },
+        play_kid_frame:function(){
+            const kid = this.kid;
+            kid.cur_frame = Consts.frame_table_kid[this.kid.frame];
+            kid.determine_col();              
+            if (this.kid.room!=null){
+                kid.play_seq();
+                kid.fall_accel();
+                kid.fall_speed();
+                kid.load_frame_to_obj();  
+            }
+            return false;
+        },
         play_level:function()
         {
             this.do_startpos();
             this.next_room = this.start_room;
+        },
+        draw_level_first:function(){
+            return (function(context){
+               return new Promise(function(resolve){
+                    context.check_the_end();
+                    for(let tile;tile=Game.tileobjstack.pop();tile){
+                        tile.clearObjs();
+                    }            
+                    Game.curRoom.draw_room();
+                    Game.curRoom.needRefresh=false;
+                    Game.curRoom.draw_moving().then(resolve);    
+               }); 
+            })(this);
         },
         getLeft: function(room)
         {
@@ -158,6 +183,33 @@ createGameLevel = function(index){
                 if (this.trobs[i].type===-1)
                     this.trobs.splice(i,1);
             }
+        },
+        draw_kid:function(){
+            return (function(context){
+               return new Promise(function(resolve){
+                    if (context.kid.room != null && context.kid.room.id!=0 && context.kid.room.id == context.drawn_room.id) {
+                        context.add_kid_to_objtable().then(resolve);
+                    }    
+               }); 
+            })(this);
+        },
+        add_kid_to_objtable:function(){
+            return (function(context){
+                return new Promise(function(resolve){
+                    const kid = context.kid;
+                    kid.cur_frame = Consts.frame_table_kid[context.kid.frame];
+                    kid.determine_col();
+                    kid.load_frame_to_obj();
+        
+                    context.kid.set_char_collision().then(
+                        function(){
+                            kid.set_objtile_at_char();
+                            kid.add_objtable();
+                            resolve();
+                        }
+                    );        
+                });
+            })(this);
         },
     }
 }
