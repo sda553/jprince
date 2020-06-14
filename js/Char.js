@@ -32,10 +32,14 @@ createChar = function(lobj_type){
                 let item = seqTbl.table(this.curr_seq++);
                 switch (item){
                     case seqTbl.SEQ_DX:
-                        this.x = this.char_dx_forward(seqTbl.table(this.curr_seq++));
+                        let dx = seqTbl.table(this.curr_seq++);
+                        dx = (dx & 127) - (dx & 128);
+                        this.x = this.char_dx_forward(dx);
                         break;
                     case seqTbl.SEQ_DY:
-                        this.y += seqTbl.table(this.curr_seq++);
+                        let dy = seqTbl.table(this.curr_seq++);
+                        dy = (dy & 127) - (dy & 128);
+                        this.y += dy;
                         break;
                     case seqTbl.SEQ_FLIP:
                         this.direction = ~this.direction;
@@ -82,6 +86,45 @@ createChar = function(lobj_type){
             }
         
         },
+        check_action:function(){
+            if (this.action==Consts.actions.actions_4_in_freefall){
+                this.do_fall();
+            }
+        },
+        do_fall:function(){
+            if (Consts.y_land[this.curr_row + 1] > this.y) {
+
+            } else {
+                let tileAtChar = this.get_tile_at_char();
+                if (tileAtChar.tile_is_floor()){
+                    this.land();
+                } else {
+                    ++this.curr_row;
+                }
+            }
+        },
+        land:function(){
+            this.y = Consts.y_land[this.curr_row + 1];
+            let seq_id=0;
+            if (this.get_tile_at_char().getTyleType() != Consts.tyles.tiles_2_spike) {
+                //start_chompers();
+            }
+            if (this.alive<0){
+                //alive
+                if (this.fall_y < 22){
+                    seq_id = seqTbl.seq_17_soft_land;
+                    if(this.charid == Consts.charids.char_id_0_kid){
+                        //play_sound
+                    }
+                }
+            }
+            this.seqtbl_offset_char(seq_id);
+            this.play_seq();
+            this.fall_y = 0;
+        },
+        get_tile_at_char:function(){
+            return this.room.get_tile_to_draw(this.curr_col,this.curr_row);
+        },
         fall_speed:function() {
             this.y += this.fall_y;
             if (this.action == Consts.actions.actions_4_in_freefall) {
@@ -120,7 +163,7 @@ createChar = function(lobj_type){
             this.obj_x = (this.char_dx_forward(this.cur_frame.dx) << 1) - 116;
             this.obj_y = this.cur_frame.dy + this.y;
             this.x_to_xh_and_xl();
-            if ((this.cur_frame.flags ^ this.obj_direction) >= 0) {
+            if ((this.cur_frame.flags ^ this.obj_direction) < 128) {
                 // 0x80: even/odd pixel
                 ++this.obj_x;
             }        
@@ -214,12 +257,16 @@ createChar = function(lobj_type){
                 }
             this.obj_tilepos = this.get_tilepos_nominus(this.tile_col,this.tile_row);
         },
-        add_objtable:function(){            
+        add_objtable:function(){  
+            let tile = null;      
             if (this.obj_tilepos<30){
-                
+                tile = this.room.getRoomTyleFromPos(this.obj_tilepos);
+                tile.tile_object_redraw = 1;
             }
             else if (this.obj_tilepos==30){
-                let tile = this.room.get_tile_to_draw(-1,0);
+                tile = this.room.get_tile_to_draw(-1,0);                
+            }
+            if (tile){
                 tile.curr_objs.push(this);
                 Game.tileobjstack.push(tile);
             }

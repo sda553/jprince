@@ -79,6 +79,7 @@ createGameLevel = function(index){
                 kid.fall_accel();
                 kid.fall_speed();
                 kid.load_frame_to_obj();  
+                kid.check_action();
             }
             return false;
         },

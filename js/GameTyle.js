@@ -9,6 +9,7 @@ createGameTyle  = function(tiletype,modifier)
         draw_xh:0,
         draw_bottom_y:0,
         redraw_frames_anim: 0,
+        tile_object_redraw: 0,
         curr_objs:[],
         getModifier:function()
         {
@@ -26,7 +27,6 @@ createGameTyle  = function(tiletype,modifier)
                 }
             }
             return this.tiletype;
-
         },
         belowleft:function()
         {
@@ -549,6 +549,10 @@ createGameTyle  = function(tiletype,modifier)
                 this.draw_tile_anim_right();
                 //draw_tile_anim();
             }
+            if (this.tile_object_redraw>0){
+                this.draw_objtable_items_at_tile();
+                this.tile_object_redraw = 0;
+            }
         },
         draw_objtable_items_at_tile: function()
         {
@@ -561,8 +565,21 @@ createGameTyle  = function(tiletype,modifier)
 
             }
         },
-
-
+        tile_is_floor:function(){
+            switch(this.getTyleType()){
+                case Consts.tyles.tiles_0_empty:
+                case Consts.tyles.tiles_9_bigpillar_top:
+                case Consts.tyles.tiles_12_doortop:
+                case Consts.tyles.tiles_20_wall:
+                case Consts.tyles.tiles_26_lattice_down:
+                case Consts.tyles.tiles_27_lattice_small:
+                case Consts.tyles.tiles_28_lattice_left:
+                case Consts.tyles.tiles_29_lattice_right:
+                    return false;
+                default:
+                    return true;
+            }
+        }
     };
     return res;
 }

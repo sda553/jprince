@@ -6,6 +6,7 @@ var Game={
     backcxtanim:document.getElementById("backframeanim").getContext('2d'),
     midcxt:document.getElementById("midframe").getContext('2d'),
     frontcxt:document.getElementById("frontframe").getContext('2d'),
+    eventGamePlay:document.getElementById("GamePlay"),
     _frameInterval:830,//83,
     tileobjstack:[],
     _timer:-1,
@@ -22,10 +23,12 @@ var Game={
             }
             else
             {
-                Game.curRoom.draw_moving()
-                  .then(Game.play_frame());
+              Game.play_frame();
+              Game.curRoom.draw_moving();
+              /*  Game.curRoom.draw_moving()
+                  .then(Game.play_frame());*/
             }
-        };
+        };        
         Game.startAnimation();
     },
     startAnimation:function(){
@@ -65,6 +68,7 @@ var Game={
     init:function()
     {
         Game.level=1;
+        Events(this.eventGamePlay);
         Game.start();
     },
     localrandom:null,
