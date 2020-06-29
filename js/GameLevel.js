@@ -73,7 +73,8 @@ createGameLevel = function(index){
         play_kid_frame:function(){
             const kid = this.kid;
             kid.cur_frame = Consts.frame_table_kid[this.kid.frame];
-            kid.determine_col();              
+            kid.determine_col();    
+            this.play_kid();
             if (this.kid.room!=null){
                 kid.play_seq();
                 kid.fall_accel();
@@ -82,6 +83,77 @@ createGameLevel = function(index){
                 kid.check_action();
             }
             return false;
+        },
+        play_kid: function(){
+            this.control_kid();
+        },
+        control_kid:function(){
+            Game.EventController.do_paused();
+            this.read_user_control();
+            this.user_control();
+        },
+        read_user_control:function(){
+            let evts = Game.EventController;
+            if (this.kid.control_forward>=0){
+                if (evts.control_x()<0){
+                    if (this.kid.control_forward==0){
+                        this.kid.control_forward = -1;
+                    }
+                } else {
+                    this.kid.control_forward = 0;
+                }
+            }
+            if (this.kid.control_backward>=0){
+                if (evts.control_x()==1){
+                    if (this.kid.control_backward==0){
+                        this.kid.control_backward = -1;
+                    }
+                } else {
+                    this.kid.control_backward = 0;
+                }
+            }
+            if (this.kid.control_up>=0){
+                if (evts.control_y()<0){
+                    if (this.kid.control_up==0){
+                        this.kid.control_up = -1;
+                    }
+                } else {
+                    this.kid.control_up = 0;
+                }
+            }
+            if (this.kid.control_down>=0){
+                if (evts.control_y()==1){
+                    if (this.kid.control_down==0){
+                        this.kid.control_down = -1;
+                    }
+                } else {
+                    this.kid.control_down = 0;
+                }
+            }
+            if (this.kid.control_shift>=0){
+                if (evts.control_shift()){
+                    if (this.kid.control_shift==0){
+                        this.kid.control_shift = -1;
+                    }
+                } else {
+                    this.kid.control_shift = 0;
+                }
+            }
+        },
+        user_control:function(){
+            if (this.kid.direction >= Consts.dir_0_right) {
+                this.flip_control_x();
+                this.kid.control();
+                this.flip_control_x();
+            } else {
+                this.control();
+            }        
+        },
+        flip_control_x:function(){
+            Game.EventController.control_x(-Game.EventController.control_x());
+            let temp = this.kid.control_forward;
+            this.kid.control_forward = this.kid.control_backward;
+            this.kid.control_backward = temp;
         },
         play_level:function()
         {

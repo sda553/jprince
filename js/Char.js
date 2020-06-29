@@ -17,6 +17,11 @@ createChar = function(lobj_type){
         obj_type:lobj_type,
         curr_seq:-1,
         is_feather_fall:false,
+        control_forward:0,
+        control_backward:0,
+        control_up:0,
+        control_down:0,
+        control_shift:0,
         seqtbl_offset_char: function(seq_index) {
             this.curr_seq = seqTbl.seqtbl_offsets[seq_index];
         },
@@ -73,6 +78,7 @@ createChar = function(lobj_type){
                     case seqTbl.SEQ_SOUND: // sound
                         this.curr_seq++;
                         //do sounds;
+                        break;
                     default:
                         this.frame = item;
                         return;
@@ -256,6 +262,56 @@ createChar = function(lobj_type){
                     --this.tile_col;
                 }
             this.obj_tilepos = this.get_tilepos_nominus(this.tile_col,this.tile_row);
+        },
+        control:function(){
+            let char_action = this.action;
+            let char_frame = this.frame;
+            if (char_action == Consts.actions.actions_5_bumped ||
+                char_action == Consts.actions.actions_4_in_freefall){
+                this.releaseArrows();
+            }
+            else if (char_frame == Consts.frameids.frame_15_stand || // standing
+                (char_frame>= Consts.frameids.frame_50_turn && char_frame<53) // end of turning
+            ) {
+                this.control_standing();
+            }
+            else if (char_frame==Consts.frameids.frame_109_crouch){
+                this.control_crouched();
+            }
+        },
+        control_crouched:function(){
+            if (Game.EventController.control_y() != 1) {
+                this.seqtbl_offset_char(seqTbl.seq_49_stand_up_from_crouch); // stand up from crouch
+            } else {
+                if (control_forward < 0) {
+                    control_forward = 1; // disable automatic repeat
+                    this.seqtbl_offset_char(seqTbl.seq_79_crouch_hop); // crouch-hop
+                }
+            }
+        },
+        control_standing:function(){
+            if (this.control_forward < 0) {
+                if (this.control_up < 0) {
+                    this.standing_jump();
+                } else {
+                    this.forward_pressed();
+                }       
+            }  else if (Game.EventController.control_x() < 0) {
+                this.forward_pressed();
+            }            
+        },
+        standing_jump() {
+            this.control_up = this.control_forward = 1; // disable automatic repeat
+            this.seqtbl_offset_char(seqTbl.seq_3_standing_jump); // standing jump
+        },   
+        forward_pressed() {
+            this.seqtbl_offset_char(seqTbl.seq_1_start_run); // start run and run
+        },     
+        releaseArrows:function(){
+            this.control_forward = 0;
+            this.control_backward = 0;
+            this.control_up = 0;
+            this.control_down = 0;
         },
         add_objtable:function(){  
             let tile = null;      

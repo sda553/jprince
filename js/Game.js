@@ -7,7 +7,7 @@ var Game={
     midcxt:document.getElementById("midframe").getContext('2d'),
     frontcxt:document.getElementById("frontframe").getContext('2d'),
     eventGamePlay:document.getElementById("GamePlay"),
-    _frameInterval:830,//83,
+    _frameInterval:83,//83,
     tileobjstack:[],
     _timer:-1,
     animation:function()
@@ -68,7 +68,8 @@ var Game={
     init:function()
     {
         Game.level=1;
-        Events(this.eventGamePlay);
+        this.EventController = Events(this.eventGamePlay);
+        this.eventGamePlay.focus();
         Game.start();
     },
     localrandom:null,
