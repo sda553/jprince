@@ -381,8 +381,10 @@ createGameTyle  = function(tiletype,modifier)
                     if (modifier_left < 9) {
                         // images 1..9 are the flames
                         //console.log("drawing torch");
-                        GraphicProcessor.drawbackanim(Consts.chtabs.id_chtab_1_flameswordpotion, modifier_left+1, this.draw_xh+1,
-                            0, this.draw_main_y-40);
+                        GraphicProcessor.drawmid(Consts.chtabs.id_chtab_1_flameswordpotion, modifier_left+1, this.draw_xh+1,
+                            0, this.draw_main_y-40,null,{});
+                        /*GraphicProcessor.drawbackanim(Consts.chtabs.id_chtab_1_flameswordpotion, modifier_left+1, this.draw_xh+1,
+                            0, this.draw_main_y-40);*/
                     }
                     break;
             }
@@ -443,8 +445,10 @@ createGameTyle  = function(tiletype,modifier)
             let curCtx = Game.backcxtanim;
             if (gate_pos.gate_bottom_y+12<this.draw_main_y)
             {
-                GraphicProcessor.drawbackanim(Consts.chtabs.id_chtab_6_environment, 50, this.draw_xh,
-                    0, gate_pos.gate_bottom_y);
+                GraphicProcessor.drawmid(Consts.chtabs.id_chtab_6_environment, 50, this.draw_xh,
+                    0, gate_pos.gate_bottom_y,null,{});
+                /*GraphicProcessor.drawbackanim(Consts.chtabs.id_chtab_6_environment, 50, this.draw_xh,
+                    0, gate_pos.gate_bottom_y);*/
             }
             else {
                 GraphicProcessor.drawback(Consts.chtabs.id_chtab_6_environment, Consts.tiletable[Consts.tyles.tiles_4_gate].right_id, this.draw_xh,

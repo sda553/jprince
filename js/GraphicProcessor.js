@@ -11,6 +11,7 @@ var GraphicProcessor = {
     },
     drawqueue:[],
     _timer:-1,
+    timer_mid:-1,
     _drawInterval:10,
     draw: function(chtab_id,id,xh,xl,ybottom,cxt)
     {
@@ -60,7 +61,7 @@ var GraphicProcessor = {
                 res = {
                     logstr:"backanim",
                     index:10,
-                };break;
+                };break;                
         }
 
         if (GraphicProcessor.drawqueue[res.index]==null)
@@ -138,25 +139,67 @@ var GraphicProcessor = {
     {
         if (cxt==null)
             cxt=Game.midcxt;
+        if (GraphicProcessor.mid_queue==null)
+            GraphicProcessor.mid_queue ={_startindexer:0,queue:[]};
+        let cur_index = GraphicProcessor.mid_queue.queue.length;
+        GraphicProcessor.mid_queue.queue.push({callbackparams:{img:null,chtab_id:chtab_id,id:id,xh:xh,xl:xl,ybottom:ybottom,direction:obj.direction},ready:false});        
         sourceLoader.sourcesPromice(chtab_id,id).then(function(imgSrc){
-            let xpos = xh * 8 +xl;
-            let ypos = ybottom - imgSrc.img.height;
-            if (GraphicProcessor.chtab_flip_clip[chtab_id]) {
-                if (chtab_id !== Consts.chtabs.id_chtab_0_sword) {
-                    xpos = GraphicProcessor.calc_screen_x_coord(xpos);
-                }
-            }
-            if (obj.direction===Consts.dir_0_right && GraphicProcessor.chtab_flip_clip[chtab_id]!==0)
-            {
-                //xpos -= imgSrc.img.width;
-                xpos=-xpos;
-                cxt.scale(-1,1);
-                cxt.drawImage(imgSrc.img,xpos,ypos,imgSrc.img.width,imgSrc.img.height);
-                cxt.scale(-1,1);
-            }
-            else
-                cxt.drawImage(imgSrc.img,xpos,ypos,imgSrc.img.width,imgSrc.img.height);
-            //cxt.scale(1,1);
+            GraphicProcessor.mid_queue.queue[cur_index].ready=true;
+            GraphicProcessor.mid_queue.queue[cur_index].callbackparams.img=imgSrc.img;
+        },function(){
+            GraphicProcessor.mid_queue.queue[cur_index].ready=true;
+            GraphicProcessor.mid_queue.queue[cur_index].callbackparams.img=null;
         });
-    }
+    },
+    wait_mid_ready:function(){return new Promise(function(resolve,reject){
+        if (GraphicProcessor.timer_mid!=-1){
+            clearInterval(GraphicProcessor.timer_mid);
+            GraphicProcessor.timer_mid = -1;
+        }
+        if (GraphicProcessor.mid_queue==null)
+            resolve();
+        GraphicProcessor.timer_mid = setInterval( function(){
+            if (GraphicProcessor.mid_queue==null){
+                clearInterval(GraphicProcessor.timer_mid);
+                GraphicProcessor.timer_mid = -1;
+                resolve();
+            }
+            if (!GraphicProcessor.mid_queue.queue.some(function(item){return !item.ready})){
+                clearInterval(GraphicProcessor.timer_mid);
+                GraphicProcessor.timer_mid = -1;
+                resolve();
+            }
+        }, GraphicProcessor._drawInterval);
+    })},
+    draw_mid_queue:function(){
+        if (GraphicProcessor.mid_queue==null)
+            return;                   
+        let queue = [];
+        GraphicProcessor.mid_queue.queue.forEach(function(item){queue.push(item)});
+        GraphicProcessor.mid_queue = null;
+        requestAnimationFrame(function animate(time) {
+            Game.midcxt.clearRect(0,0,Game.HBOUND,Game.VBOUND); 
+            queue.forEach(function(item){
+                let params = item.callbackparams;
+                let cxt=Game.midcxt;
+                let xpos = params.xh * 8 +params.xl;
+                let ypos = params.ybottom - params.img.height;
+                if (GraphicProcessor.chtab_flip_clip[params.chtab_id]) {
+                    if (params.chtab_id !== Consts.chtabs.id_chtab_0_sword) {
+                        xpos = GraphicProcessor.calc_screen_x_coord(xpos);
+                    }
+                }
+                if (params.direction===Consts.dir_0_right && GraphicProcessor.chtab_flip_clip[params.chtab_id]!==0)
+                {
+                    //xpos -= imgSrc.img.width;
+                    xpos=-xpos;
+                    cxt.scale(-1,1);
+                    cxt.drawImage(params.img,xpos,ypos,params.img.width,params.img.height);
+                    cxt.scale(-1,1);
+                }
+                else
+                    cxt.drawImage(params.img,xpos,ypos,params.img.width,params.img.height);            
+            });    
+        });
+    },
 }

@@ -24,7 +24,9 @@ var Game={
             else
             {
               Game.play_frame();
-              Game.curRoom.draw_moving();
+              Game.curRoom.draw_moving().then(
+                GraphicProcessor.wait_mid_ready()
+                  .then(GraphicProcessor.draw_mid_queue()));
               /*  Game.curRoom.draw_moving()
                   .then(Game.play_frame());*/
             }

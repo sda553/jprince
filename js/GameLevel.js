@@ -169,7 +169,13 @@ createGameLevel = function(index){
                     }            
                     Game.curRoom.draw_room();
                     Game.curRoom.needRefresh=false;
-                    Game.curRoom.draw_moving().then(resolve);    
+                    Game.curRoom.draw_moving().then(
+                        GraphicProcessor.wait_mid_ready().then(
+                            function(){
+                                GraphicProcessor.draw_mid_queue();
+                                resolve();
+                            }
+                        ));    
                }); 
             })(this);
         },

@@ -166,7 +166,7 @@ createGameRoom = function(id, level) {
                 return (function(context){
                    return new Promise(function(resolve){
                     Game.backcxtanim.clearRect(0,0,Game.HBOUND,Game.VBOUND);
-                    Game.midcxt.clearRect(0,0,Game.HBOUND,Game.VBOUND);
+                    //Game.midcxt.clearRect(0,0,Game.HBOUND,Game.VBOUND);
                     context.draw_people()
                     .then(function(){
                         context.redraw_needed_tiles();
