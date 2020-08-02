@@ -6,6 +6,7 @@ Consts =
         y_land:[-8, 55, 118, 181, 244],
         FRAME_WEIGHT_X : 0x1F,
         FRAME_THIN : 0x20,
+        FRAME_NEEDS_FLOOR: 0x40,
         charids: {
             charid_0_kid      : 0,
             charid_1_shadow   : 1,

@@ -76,8 +76,25 @@ createChar = function(lobj_type){
                         //knock = -1;
                         break;
                     case seqTbl.SEQ_SOUND: // sound
-                        this.curr_seq++;
-                        //do sounds;
+                        let snd = seqTbl.table(this.curr_seq++);
+                        switch (snd){
+                            case 1: 
+                                SoundProcessor.sound_23_footstep.play();
+                                break;
+                            case 2: 
+                                SoundProcessor.sound_8_bumped.play();
+                                break;
+                            case 3: 
+                                SoundProcessor.sound_18_drink.play();
+                                break;
+                            case 4: 
+                                if (Game.curLevel.level_number == 4) {
+                                    SoundProcessor.sound_32_shadow_music.play(); // end level with shadow (level 4)
+                                } else if (Game.curLevel.level_number != 13 && Game.curLevel.level_number != 15) {
+                                    SoundProcessor.sound_41_end_level_music.play();// end level
+                                }
+                                break;
+                        }
                         break;
                     default:
                         this.frame = item;
@@ -96,6 +113,12 @@ createChar = function(lobj_type){
             if (this.action==Consts.actions.actions_4_in_freefall){
                 this.do_fall();
             }
+            else if (this.action==Consts.actions.actions_3_in_midair){
+
+            }
+            else if (this.action!=Consts.actions.actions_2_hang_climb){
+                this.check_on_floor();
+            }
         },
         do_fall:function(){
             if (Consts.y_land[this.curr_row + 1] > this.y) {
@@ -109,6 +132,85 @@ createChar = function(lobj_type){
                 }
             }
         },
+        check_on_floor:function(){
+            if (this.cur_frame.flags & Consts.FRAME_NEEDS_FLOOR){
+                let tileAtChar = this.get_tile_at_char();
+                if (tileAtChar.getTyleType() == Consts.tyles.tiles_20_wall){
+                    this.in_wall();
+                }
+                if (!tileAtChar.tile_is_floor()){
+                    this.start_fall();
+                }
+            }
+        },
+        start_fall:function(){            
+            this.sword = Consts.sword_status.sword_0_sheathed;
+            ++this.curr_row;
+            let seq_id = seqTbl.seq_7_fall;
+            let frame = this.cur_frame;
+            if (frame == Consts.frameids.frame_9_run){
+                seq_id = seqTbl.seq_7_fall;
+            }
+            else if (frame=Consts.frameids.frame_13_run){
+                seq_id = seqTbl.seq_19_fall;
+            }
+            else if (frame=Consts.frameids.frame_26_standing_jump_11){
+                seq_id = seqTbl.seq_18_fall_after_standing_jump;
+            }
+            else if (frame=Consts.frameids.frame_44_running_jump_5){
+                seq_id = seqTbl.seq_21_fall_after_running_jump;
+            }
+            else if (frame>=Consts.frameids.frame_81_hangdrop_1 && frame<86){
+                seq_id = seqTbl.seq_19_fall;
+                this.x = this.char_dx_forward(5);
+                this.determine_col();
+            }
+            else if (frame >= 150 && frame < 180) {
+                if (this.direction < Consts.dir_0_right && this.distance_to_edge_weight() <= 7) {
+                    this.x = this.char_dx_forward(-5);
+                }
+                seq_id = seqTbl.seq_81_kid_pushed_off_ledge; // fall after backing with sword / Kid is pushed off the ledge    
+            }
+            this.seqtbl_offset_char(seq_id);
+            this.play_seq();
+            this.determine_col();
+            if (this.get_tile_at_char().getTyleType()== Consts.tyles.tiles_20_wall){
+                this.in_wall();
+                return;
+            }
+            let tile = this.get_tile_infrontof_char();
+            if (tile.getTyleType() == Consts.tyles.tiles_20_wall){
+                if (frame!=44 || this.distance_to_edge_weight() >= 6){
+                    this.x = this.char_dx_forward(-1);
+                } else {
+                    this.seqtbl_offset_char(seqTbl.seq_104_start_fall_in_front_of_wall);
+                    this.play_seq();
+                }
+                this.determine_col();
+            }
+        },
+        in_wall:function(){
+            let delta_x = this.distance_to_edge_weight();
+            if (delta_x>=8 || 
+                this.get_tile_infrontof_char().getTyleType()==Consts.tyles.tiles_20_wall){
+                delta_x = 6-delta_x;
+            } else {
+                delta_x+=4;
+            }
+            this.x = this.char_dx_forward(delta_x);
+            this.determine_col();
+        },
+        distance_to_edge_weight:function(){
+            return this.distance_to_edge(this.dx_weight());
+        },
+        distance_to_edge:function(xpos){
+            this.get_tile_div_mod_m7(xpos);
+            let distance = this.obj_xl;
+            if (this.direction == Consts.dir_0_right){
+                distance = 13-distance;
+            }
+            return distance;
+        },
         land:function(){
             this.y = Consts.y_land[this.curr_row + 1];
             let seq_id=0;
@@ -120,7 +222,7 @@ createChar = function(lobj_type){
                 if (this.fall_y < 22){
                     seq_id = seqTbl.seq_17_soft_land;
                     if(this.charid == Consts.charids.char_id_0_kid){
-                        //play_sound
+                        SoundProcessor.sound_17_soft_land.play();
                     }
                 }
             }
@@ -130,6 +232,10 @@ createChar = function(lobj_type){
         },
         get_tile_at_char:function(){
             return this.room.get_tile_to_draw(this.curr_col,this.curr_row);
+        },
+        get_tile_infrontof_char:function(){
+            let front_col = this.curr_col+this.direction==Consts.dir_0_right?1:-1;                    
+            return this.room.get_tile_to_draw(front_col,this.curr_row);
         },
         fall_speed:function() {
             this.y += this.fall_y;
@@ -275,12 +381,25 @@ createChar = function(lobj_type){
             ) {
                 this.control_standing();
             }
+            else if (char_frame < Consts.frameids.frame_15_stand) {
+                this.control_running();
+            }
             else if (char_frame==Consts.frameids.frame_109_crouch){
                 this.control_crouched();
             }
         },
-        control_crouched:function(){
-            if (Game.EventController.control_y() != 1) {
+        control_crouched:function(){                
+            if (Game.curLevel.level_number===1 && Game.curLevel.need_level_music){                                
+                if (!SoundProcessor.sound_25_presentation.alreadyPlayed && !SoundProcessor.sound_25_presentation.isPlaying){
+                    SoundProcessor.sound_25_presentation.res_sound.addEventListener('ended', function(event) {
+                        Game.curLevel.need_level_music = false;                        
+                      });
+                    SoundProcessor.sound_25_presentation.alreadyPlayed = true;
+                    SoundProcessor.sound_25_presentation.play();
+                }
+            }
+            else if (Game.EventController.control_y() != 1) {
+
                 this.seqtbl_offset_char(seqTbl.seq_49_stand_up_from_crouch); // stand up from crouch
             } else {
                 if (control_forward < 0) {
@@ -289,24 +408,52 @@ createChar = function(lobj_type){
                 }
             }
         },
+        control_running:function(){
+            let char_frame = this.frame;
+            if (Game.EventController.control_x() == 0 && (char_frame == Consts.frameids.frame_7_run || char_frame == Consts.frameids.frame_11_run)) {
+                this.releaseArrows();
+                this.seqtbl_offset_char(seqTbl.seq_13_stop_run); // stop run
+            } else if (Game.EventController.control_x() > 0) {
+                this.releaseArrows();
+                this.seqtbl_offset_char(seqTbl.seq_6_run_turn); // run-turn
+            } else if (Game.EventController.control_y() < 0 && this.control_up < 0) {
+                this.run_jump();
+            } else if (this.control_down < 0) {
+                this.control_down = 1; // disable automatic repeat
+                this.seqtbl_offset_char(seqTbl.seq_26_crouch_while_running); // crouch while running
+            }            
+        },
         control_standing:function(){
-            if (this.control_forward < 0) {
+            if (this.control_shift){
+                if (this.control_backward < 0){
+                    this.back_pressed();
+                }
+            }
+            else if (this.control_forward < 0) {
                 if (this.control_up < 0) {
                     this.standing_jump();
                 } else {
                     this.forward_pressed();
                 }       
-            }  else if (Game.EventController.control_x() < 0) {
-                this.forward_pressed();
+            } 
+            else if (this.control_backward < 0 ){
+                this.back_pressed();
+            }
+            else if (Game.EventController.control_x() < 0) {
+                this.forward_pressed();                
             }            
         },
-        standing_jump() {
+        standing_jump:function() {
             this.control_up = this.control_forward = 1; // disable automatic repeat
             this.seqtbl_offset_char(seqTbl.seq_3_standing_jump); // standing jump
         },   
-        forward_pressed() {
+        forward_pressed:function() {
             this.seqtbl_offset_char(seqTbl.seq_1_start_run); // start run and run
         },     
+        back_pressed:function(){
+            this.releaseArrows();
+            this.seqtbl_offset_char(seqTbl.seq_5_turn);
+        },
         releaseArrows:function(){
             this.control_forward = 0;
             this.control_backward = 0;

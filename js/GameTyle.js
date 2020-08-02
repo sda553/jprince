@@ -432,6 +432,7 @@ createGameTyle  = function(tiletype,modifier)
                 if (this.modifier<0)
                 {
                     this.modifier=0;
+                    SoundProcessor.sound_6_gate_closing_fast.play();
                     return -1;
                 }
             }

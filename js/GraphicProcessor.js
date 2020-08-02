@@ -164,7 +164,7 @@ var GraphicProcessor = {
                 GraphicProcessor.timer_mid = -1;
                 resolve();
             }
-            if (!GraphicProcessor.mid_queue.queue.some(function(item){return !item.ready})){
+            if (GraphicProcessor.mid_queue!=null && !GraphicProcessor.mid_queue.queue.some(function(item){return !item.ready})){
                 clearInterval(GraphicProcessor.timer_mid);
                 GraphicProcessor.timer_mid = -1;
                 resolve();

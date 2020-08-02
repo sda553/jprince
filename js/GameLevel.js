@@ -5,6 +5,7 @@ createGameLevel = function(index){
         drawn_room:{},
         rooms:[],
         trobs:[],
+        need_level_music:false,
         start_room:null,
         kid:null,
         do_startpos: function()
@@ -19,7 +20,9 @@ createGameLevel = function(index){
             this.kid.direction = ~this.getStartDir();
             if (this.level_number==1)
             {
+                this.need_level_music = true;                
                 let triggerRoom = this.getGameRoom(5);
+                SoundProcessor.sound_25_presentation.alreadyPlayed = false;
                 let triggertyle = triggerRoom.get_tile_to_draw(2,0);
                 triggertyle.trigger_button(0,0,-1);
                 this.kid.seqtbl_offset_char(seqTbl.seq_7_fall);
@@ -71,18 +74,27 @@ createGameLevel = function(index){
             this.drawn_room.draw_room();
         },
         play_kid_frame:function(){
-            const kid = this.kid;
-            kid.cur_frame = Consts.frame_table_kid[this.kid.frame];
-            kid.determine_col();    
-            this.play_kid();
-            if (this.kid.room!=null){
-                kid.play_seq();
-                kid.fall_accel();
-                kid.fall_speed();
-                kid.load_frame_to_obj();  
-                kid.check_action();
-            }
-            return false;
+            return (function(context){
+                return new Promise(function(resolve){
+                    const kid = context.kid;
+                    kid.cur_frame = Consts.frame_table_kid[context.kid.frame];
+                    kid.determine_col();    
+                    context.play_kid();
+                    if (context.kid.room!=null){
+                        kid.play_seq();
+                        kid.fall_accel();
+                        kid.fall_speed();
+                        kid.load_frame_to_obj(); 
+                        kid.determine_col();
+                        kid.set_char_collision().then(function(){
+                            kid.check_action();
+                            resolve(false);
+                        });                         
+                    }
+                    else 
+                        resolve(false);        
+                });
+            })(this);
         },
         play_kid: function(){
             this.control_kid();
@@ -146,7 +158,7 @@ createGameLevel = function(index){
                 this.kid.control();
                 this.flip_control_x();
             } else {
-                this.control();
+                this.kid.control();
             }        
         },
         flip_control_x:function(){

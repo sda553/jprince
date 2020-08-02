@@ -6,7 +6,10 @@
 		<link rel="stylesheet" href="css/prince.css">
 		<script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
 	</head>
-	<body>
+	<body>		
+		<div>
+			<button id="startButton">Start Game</button>
+		</div>
 		<div id="GamePlay" class="GameLayer" tabindex="-1">
 			<canvas id='backframe' width="320" height="240">Обновите браузер</canvas>
 			<canvas id='backframeanim' width="320" height="240"></canvas>
@@ -19,6 +22,7 @@
 		<script src="js/Consts.js"></script>
 		<script src="js/Prandom.js"></script>
 		<script src="js/SourceLoader.js"></script>
+		<script src="js/Sounds.js"></script>
 		<script src="js/Levels.js"></script>
 		<script src="js/Game.js"></script>
 		<script src="js/GraphicProcessor.js"></script>
@@ -27,7 +31,15 @@
 		<script src="js/Char.js"></script>
 		<script src="js/GameLevel.js"></script>
 		<script src="js/Events.js"></script>
-
+		<script>
+			startButton.addEventListener('click', function() {
+				Array.from(document.getElementsByClassName("wav_sound")).forEach(element => {
+					element.attributes.muted = false;	  
+				});
+				GamePlay.focus();		
+				Game.start();	
+			});
+		  </script>		  
 
 		<script type='text/javascript'>
 			

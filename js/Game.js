@@ -64,15 +64,19 @@ var Game={
     },
     play_frame:function(){
         Game.curLevel.process_trobs();
-        if (Game.curLevel.play_kid_frame()) return;
-        Game.curLevel.check_the_end();
+        Game.curLevel.play_kid_frame().then(
+          function(result){
+            if (!result)
+              Game.curLevel.check_the_end();
+          }
+        );        
     },
     init:function()
     {
         Game.level=1;
         this.EventController = Events(this.eventGamePlay);
         this.eventGamePlay.focus();
-        Game.start();
+        //Game.start();
     },
     localrandom:null,
     getLocalPrandom: function(max)
